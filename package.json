@@ -1,0 +1,26 @@
+{
+  "name": "@vandeurenglenn/native-proton",
+  "version": "1.0.0",
+  "description": "",
+  "main": "test.js",
+  "type": "module",
+  "scripts": {
+    "build": "rollup -c",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@vandeurenglenn/typed-array-smart-concat": "^1.0.2",
+    "@vandeurenglenn/typed-array-smart-deconcat": "^1.0.1",
+    "@vandeurenglenn/typed-array-utils": "^1.0.0",
+    "pako": "^2.1.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^11.0.0",
+    "@types/pako": "^2.0.0",
+    "rollup": "^3.10.0",
+    "tslib": "^2.4.1"
+  }
+}
