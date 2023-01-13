@@ -3,7 +3,7 @@
 
 ## install
 ```sh
-npm i @vandeurenglenn/native-proton
+npm i @vandeurenglenn/proto-array
 ```
 
 ## usage

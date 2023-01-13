@@ -1,8 +1,11 @@
 {
-  "name": "@vandeurenglenn/native-proton",
+  "name": "@vandeurenglenn/proto-array",
   "version": "1.0.0",
   "description": "",
-  "main": "test.js",
+  "exports": {
+    ".": "./index.js"
+  },
+  "types": "./index.d.ts",
   "type": "module",
   "scripts": {
     "build": "rollup -c",
