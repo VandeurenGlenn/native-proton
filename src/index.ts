@@ -25,7 +25,7 @@ const tokenize = (key: string, value: string | object | []) => {
   return { type, optional, key: parts[0], minimumLength }
 }
 
-export const encode = (proto, input) => {
+export const encode = (proto: object, input: object): Uint8Array => {
   const keys = Object.keys(proto)
   const values: any[] = Object.values(proto)
   
@@ -47,7 +47,7 @@ export const encode = (proto, input) => {
   return typedArraySmartConcat(set)
 }
 
-export const decode = (proto, uint8Array: Uint8Array) => {
+export const decode = (proto: object, uint8Array: Uint8Array): object => {
   let deconcated = typedArraySmartDeconcat(uint8Array)
   const output = {}
 

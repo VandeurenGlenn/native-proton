@@ -21,7 +21,6 @@ const encode = (proto, input) => {
     const keys = Object.keys(proto);
     const values = Object.values(proto);
     const set = [];
-    console.log(set);
     for (let i = 0; i < keys.length; i++) {
         const token = tokenize(keys[i], values[i]);
         const data = input[token.key];
