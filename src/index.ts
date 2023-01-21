@@ -35,7 +35,7 @@ const toType = (data: number | string | Uint8Array | ArrayBuffer | object | []):
   // returns the object as a UintArray
   if (typeof data === 'object') return new TextEncoder().encode(JSON.stringify(data))
   // returns the number as a UintArray
-  if (!isNaN(Number(data))) return new TextEncoder().encode(data.toString())
+  if (typeof data === 'number') return new TextEncoder().encode(data.toString())
 
   throw new Error(`unsuported type ${typeof data || data}`)
 }

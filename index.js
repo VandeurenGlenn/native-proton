@@ -31,7 +31,7 @@ const toType = (data) => {
     if (typeof data === 'object')
         return new TextEncoder().encode(JSON.stringify(data));
     // returns the number as a UintArray
-    if (!isNaN(Number(data)))
+    if (typeof data === 'number')
         return new TextEncoder().encode(data.toString());
     throw new Error(`unsuported type ${typeof data || data}`);
 };
