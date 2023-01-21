@@ -1,7 +1,7 @@
-export declare const encode: (proto: any, input: any) => Uint8Array;
-export declare const decode: (proto: any, uint8Array: Uint8Array) => {};
+export declare const encode: (proto: object, input: object) => Uint8Array;
+export declare const decode: (proto: object, uint8Array: Uint8Array) => object;
 declare const _default: {
-    encode: (proto: any, input: any) => Uint8Array;
-    decode: (proto: any, uint8Array: Uint8Array) => {};
+    encode: (proto: object, input: object) => Uint8Array;
+    decode: (proto: object, uint8Array: Uint8Array) => object;
 };
 export default _default;

@@ -25,6 +25,21 @@ const tokenize = (key: string, value: string | object | []) => {
   return { type, optional, key: parts[0], minimumLength }
 }
 
+const toType = (data: number | string | Uint8Array | ArrayBuffer | object | []): Uint8Array => {
+  // always return uint8Arrays as they are
+  if (data instanceof Uint8Array) return data
+  // returns the ArrayBuffer as a UintArray
+  if (data instanceof ArrayBuffer) return new Uint8Array(data)
+  // returns the string as a UintArray
+  if (typeof data === 'string') return new TextEncoder().encode(data)
+  // returns the object as a UintArray
+  if (typeof data === 'object') return new TextEncoder().encode(JSON.stringify(data))
+  // returns the number as a UintArray
+  if (!isNaN(Number(data))) return new TextEncoder().encode(data.toString())
+
+  throw new Error(`unsuported type ${typeof data || data}`)
+}
+
 export const encode = (proto: object, input: object): Uint8Array => {
   const keys = Object.keys(proto)
   const values: any[] = Object.values(proto)
@@ -35,14 +50,10 @@ export const encode = (proto: object, input: object): Uint8Array => {
     const token = tokenize(keys[i], values[i])
     const data = input[token.key]
     
-    
     if (!token.optional && data === undefined) throw new Error(`requires: ${token.key}`)
     if (token.type !== 'object' && token.minimumLength > data.length || token.type === 'object' && token.minimumLength > Object.keys(data).length) throw new Error(`minimumLength for ${token.key} is set to ${token.minimumLength} but got ${data.length}`)
 
-    if (isUint8Array(token.type)) set.push(data)
-    else if (isString(token.type)) set.push(fromString(data))
-    else if (isNumber(token.type)) set.push(new TextEncoder().encode(data.toString()))
-    else if (isJson(token.type)) set.push(new TextEncoder().encode(JSON.stringify(data)))
+    set.push(toType(data))
   }  
   return typedArraySmartConcat(set)
 }
