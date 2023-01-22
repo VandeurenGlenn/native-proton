@@ -6,6 +6,7 @@ const { fromString, toString } = typedArrayUtils;
 const isJson = (type) => type === 'object' || 'array';
 const isString = (type) => type === 'string';
 const isNumber = (type) => type === 'number';
+const isBoolean = (type) => type === 'boolean';
 const isUint8Array = (type) => type === 'uint8Array';
 const tokenize = (key, value) => {
     const optional = key.endsWith('?');
@@ -31,7 +32,7 @@ const toType = (data) => {
     if (typeof data === 'object')
         return new TextEncoder().encode(JSON.stringify(data));
     // returns the number as a UintArray
-    if (typeof data === 'number')
+    if (typeof data === 'number' || typeof data === 'boolean')
         return new TextEncoder().encode(data.toString());
     throw new Error(`unsuported type ${typeof data || data}`);
 };
@@ -43,10 +44,13 @@ const encode = (proto, input) => {
         const token = tokenize(keys[i], values[i]);
         const data = input[token.key];
         if (!token.optional && data === undefined)
-            throw new Error(`requires: ${token.key}`);
+            throw new Error(`missing required property: ${token.key}`);
         if (token.type !== 'object' && token.minimumLength > data.length || token.type === 'object' && token.minimumLength > Object.keys(data).length)
             throw new Error(`minimumLength for ${token.key} is set to ${token.minimumLength} but got ${data.length}`);
-        set.push(toType(data));
+        // always push data to the set.
+        // when data is undefined push the default value of the proto
+        if (data)
+            set.push(toType(data || values[i]));
     }
     return typedArraySmartConcat(set);
 };
@@ -63,6 +67,8 @@ const decode = (proto, uint8Array) => {
             output[token.key] = deconcated[i];
         else if (isString(token.type))
             output[token.key] = toString(deconcated[i]);
+        else if (isBoolean(token.type))
+            output[token.key] = Boolean(new TextDecoder().decode(deconcated[i]));
         else if (isNumber(token.type))
             output[token.key] = Number(new TextDecoder().decode(deconcated[i]));
         else if (isJson(token.type))
