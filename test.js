@@ -1,7 +1,7 @@
 import { encode, decode } from "./index.js"
 
 const proto = {
-  hash: '',
+  'hash?': '',
   input: {
     test: 1
   },
@@ -9,7 +9,6 @@ const proto = {
 }
 
 const encoded = encode(proto, {
-  hash: '0xf1',
   input: {
     test: 1    
   },
@@ -17,14 +16,14 @@ const encoded = encode(proto, {
 })
 
 console.log('# can encode');
-console.log(encoded.length === 25);
+console.log(encoded.length === 21);
 const decoded = decode(proto, encoded)
 
 console.log('# can decode');
-console.log(Object.keys(decoded).length === 3);
+console.log(Object.keys(decoded).length === 2);
 
 const normalEncoded = new TextEncoder().encode(JSON.stringify({
-  hash: '0xf1',
+  hash: '',
   input: {
     test: 1    
   },

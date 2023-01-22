@@ -56,7 +56,7 @@ export const encode = (proto: object, input: object): Uint8Array => {
     if (token.type === 'array' && token.minimumLength > data.length || token.type === 'object' && token.minimumLength > Object.keys(data).length) throw new Error(`minimumLength for ${token.key} is set to ${token.minimumLength} but got ${data.length}`)
     // always push data to the set.
     // when data is undefined push the default value of the proto
-    if (data) set.push(toType(data || values[i]))
+    set.push(toType(data || values[i]))
   }  
   return typedArraySmartConcat(set)
 }
@@ -78,6 +78,9 @@ export const decode = (proto: object, uint8Array: Uint8Array): object => {
     else if (isNumber(token.type)) output[token.key] = Number(new TextDecoder().decode(deconcated[i]))
     else if (isJson(token.type)) output[token.key] = JSON.parse(new TextDecoder().decode(deconcated[i]))
 
+    if (token.optional) {
+      if (!output[token.key] || output[token.key].length === 0) delete output[token.key]
+    } 
     if (!token.optional && output[token.key] === undefined) throw new Error(`missing required property: ${token.key}`)
   }
   return output
