@@ -45,7 +45,7 @@ const encode = (proto, input) => {
         const data = input[token.key];
         if (!token.optional && data === undefined)
             throw new Error(`missing required property: ${token.key}`);
-        if (token.type !== 'object' && token.minimumLength > data.length || token.type === 'object' && token.minimumLength > Object.keys(data).length)
+        if (token.type === 'array' && token.minimumLength > data.length || token.type === 'object' && token.minimumLength > Object.keys(data).length)
             throw new Error(`minimumLength for ${token.key} is set to ${token.minimumLength} but got ${data.length}`);
         // always push data to the set.
         // when data is undefined push the default value of the proto
