@@ -79,7 +79,7 @@ const decode = (proto, uint8Array) => {
         else if (isNumber(token.type))
             output[token.key] = Number(new TextDecoder().decode(deconcated[i]));
         else if (isBigNumber(token.type))
-            output[token.key] = new BigNumber.from(new TextDecoder().decode(deconcated[i]));
+            output[token.key] = BigNumber.from(new TextDecoder().decode(deconcated[i]));
         else if (isJson(token.type))
             output[token.key] = JSON.parse(new TextDecoder().decode(deconcated[i]));
         if (token.optional) {

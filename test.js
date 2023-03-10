@@ -13,7 +13,7 @@ const encoded = encode(proto, {
   input: {
     test: 1    
   },
-  num: new BigNumber.from('1'),
+  num: BigNumber.from('1'),
   otherList: new Uint8Array(8)
 })
 

@@ -83,7 +83,7 @@ export const decode = (proto: object, uint8Array: Uint8Array): object => {
     else if (isString(token.type)) output[token.key] = toString(deconcated[i])
     else if (isBoolean(token.type)) output[token.key] = Boolean(new TextDecoder().decode(deconcated[i]))
     else if (isNumber(token.type)) output[token.key] = Number(new TextDecoder().decode(deconcated[i]))
-    else if (isBigNumber(token.type)) output[token.key] = new BigNumber.from(new TextDecoder().decode(deconcated[i]))
+    else if (isBigNumber(token.type)) output[token.key] = BigNumber.from(new TextDecoder().decode(deconcated[i]))
     else if (isJson(token.type)) output[token.key] = JSON.parse(new TextDecoder().decode(deconcated[i]))
     if (token.optional) {
       if (!output[token.key] || output[token.key].length === 0) delete output[token.key]
