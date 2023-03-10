@@ -1,6 +1,7 @@
 import typedArraySmartConcat from '@vandeurenglenn/typed-array-smart-concat';
 import typedArraySmartDeconcat from '@vandeurenglenn/typed-array-smart-deconcat';
 import typedArrayUtils from '@vandeurenglenn/typed-array-utils';
+import { BigNumber } from '@leofcoin/utils';
 
 const { fromString, toString } = typedArrayUtils;
 const isJson = (type) => type === 'object' || 'array';
@@ -8,12 +9,15 @@ const isString = (type) => type === 'string';
 const isNumber = (type) => type === 'number';
 const isBoolean = (type) => type === 'boolean';
 const isUint8Array = (type) => type === 'uint8Array';
+const isBigNumber = (type) => type === 'bigNumber';
 const tokenize = (key, value) => {
     const optional = key.endsWith('?');
     let type = value;
     type = Array.isArray(type) ? 'array' : typeof type;
     if (value instanceof Uint8Array)
         type = 'uint8Array';
+    else if (value._isBigNumber)
+        type = 'bigNumber';
     const parts = key.split('?');
     const minimumLength = parts[2]?.includes('min') ? parts[2].split['min:'][1] : 0;
     return { type, optional, key: parts[0], minimumLength };
@@ -25,6 +29,10 @@ const toType = (data) => {
     // returns the ArrayBuffer as a UintArray
     if (data instanceof ArrayBuffer)
         return new Uint8Array(data);
+    // 
+    console.log(data);
+    if (data._isBigNumber)
+        return new TextEncoder().encode(data.toHexString());
     // returns the string as a UintArray
     if (typeof data === 'string')
         return new TextEncoder().encode(data);
@@ -70,6 +78,8 @@ const decode = (proto, uint8Array) => {
             output[token.key] = Boolean(new TextDecoder().decode(deconcated[i]));
         else if (isNumber(token.type))
             output[token.key] = Number(new TextDecoder().decode(deconcated[i]));
+        else if (isBigNumber(token.type))
+            output[token.key] = new BigNumber.from(new TextDecoder().decode(deconcated[i]));
         else if (isJson(token.type))
             output[token.key] = JSON.parse(new TextDecoder().decode(deconcated[i]));
         if (token.optional) {

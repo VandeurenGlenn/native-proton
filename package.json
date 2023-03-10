@@ -15,6 +15,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@leofcoin/utils": "^1.1.5",
     "@vandeurenglenn/typed-array-smart-concat": "^1.0.2",
     "@vandeurenglenn/typed-array-smart-deconcat": "^1.0.1",
     "@vandeurenglenn/typed-array-utils": "^1.0.0",

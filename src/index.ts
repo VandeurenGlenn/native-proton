@@ -1,7 +1,7 @@
 import typedArraySmartConcat from "@vandeurenglenn/typed-array-smart-concat"
 import typedArraySmartDeconcat from '@vandeurenglenn/typed-array-smart-deconcat'
 import typedArrayUtils from "@vandeurenglenn/typed-array-utils"
-
+import { BigNumber } from "@leofcoin/utils"
 const { fromString, toString } =  typedArrayUtils
 
 const isJson = (type: string) => type === 'object' || 'array'
@@ -13,6 +13,7 @@ const isNumber = (type: string) => type === 'number'
 const isBoolean = (type: string) => type === 'boolean'
 
 const isUint8Array = (type: string) => type === 'uint8Array'
+const isBigNumber = (type: BigNumber) => type === 'bigNumber'
 
 const tokenize = (key: string, value: string | object | []) => {  
   const optional = key.endsWith('?')
@@ -20,6 +21,7 @@ const tokenize = (key: string, value: string | object | []) => {
 
   type = Array.isArray(type) ? 'array' : typeof type
   if (value instanceof Uint8Array) type = 'uint8Array'
+  else if (value._isBigNumber) type = 'bigNumber'
   
 
   const parts = key.split('?')
@@ -27,11 +29,15 @@ const tokenize = (key: string, value: string | object | []) => {
   return { type, optional, key: parts[0], minimumLength }
 }
 
-const toType = (data: number | string | Uint8Array | ArrayBuffer | object | []): Uint8Array => {
+const toType = (data: BigNumber | number | string | Uint8Array | ArrayBuffer | object | []): Uint8Array => {
   // always return uint8Arrays as they are
   if (data instanceof Uint8Array) return data
   // returns the ArrayBuffer as a UintArray
   if (data instanceof ArrayBuffer) return new Uint8Array(data)
+  // 
+  console.log(data);
+  
+  if (data._isBigNumber) return new TextEncoder().encode(data.toHexString())
   // returns the string as a UintArray
   if (typeof data === 'string') return new TextEncoder().encode(data)
   // returns the object as a UintArray
@@ -72,12 +78,13 @@ export const decode = (proto: object, uint8Array: Uint8Array): object => {
   
   for (let i = 0; i < keys.length; i++) {
     const token = tokenize(keys[i], values[i])    
+    
     if (isUint8Array(token.type)) output[token.key] = deconcated[i]
     else if (isString(token.type)) output[token.key] = toString(deconcated[i])
     else if (isBoolean(token.type)) output[token.key] = Boolean(new TextDecoder().decode(deconcated[i]))
     else if (isNumber(token.type)) output[token.key] = Number(new TextDecoder().decode(deconcated[i]))
+    else if (isBigNumber(token.type)) output[token.key] = new BigNumber.from(new TextDecoder().decode(deconcated[i]))
     else if (isJson(token.type)) output[token.key] = JSON.parse(new TextDecoder().decode(deconcated[i]))
-
     if (token.optional) {
       if (!output[token.key] || output[token.key].length === 0) delete output[token.key]
     } 
