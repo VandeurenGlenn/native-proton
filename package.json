@@ -1,6 +1,6 @@
 {
   "name": "@vandeurenglenn/proto-array",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "",
   "exports": {
     ".": "./index.js"
