@@ -32,7 +32,7 @@ const toType = (data) => {
     // 
     console.log(data);
     if (data._isBigNumber)
-        return new TextEncoder().encode(data.toHexString());
+        return new TextEncoder().encode(data._hex || data.toHexString());
     // returns the string as a UintArray
     if (typeof data === 'string')
         return new TextEncoder().encode(data);

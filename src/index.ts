@@ -37,7 +37,7 @@ const toType = (data: BigNumber | number | string | Uint8Array | ArrayBuffer | o
   // 
   console.log(data);
   
-  if (data._isBigNumber) return new TextEncoder().encode(data.toHexString())
+  if (data._isBigNumber) return new TextEncoder().encode(data._hex || data.toHexString())
   // returns the string as a UintArray
   if (typeof data === 'string') return new TextEncoder().encode(data)
   // returns the object as a UintArray
