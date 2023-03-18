@@ -2,6 +2,7 @@ import typedArraySmartConcat from "@vandeurenglenn/typed-array-smart-concat"
 import typedArraySmartDeconcat from '@vandeurenglenn/typed-array-smart-deconcat'
 import typedArrayUtils from "@vandeurenglenn/typed-array-utils"
 import { BigNumber } from "@leofcoin/utils"
+
 const { fromString, toString } =  typedArrayUtils
 
 const isJson = (type: string) => type === 'object' || 'array'
@@ -13,17 +14,17 @@ const isNumber = (type: string) => type === 'number'
 const isBoolean = (type: string) => type === 'boolean'
 
 const isUint8Array = (type: string) => type === 'uint8Array'
+
 const isBigNumber = (type: BigNumber) => type === 'bigNumber'
 
-const tokenize = (key: string, value: string | object | []) => {  
+const tokenize = (key: string | number | BigNumber | object | [], value: string | number | BigNumber | object | []) => {  
   const optional = key.endsWith('?')
-  let type = value
+  let type = value === undefined ? key : value
 
-  type = Array.isArray(type) ? 'array' : typeof type
-  if (value instanceof Uint8Array) type = 'uint8Array'
-  else if (value._isBigNumber) type = 'bigNumber'
+  if (type instanceof Uint8Array) type = 'uint8Array' 
+  else if (type?._isBigNumber || type.isBigNumber) type = 'bigNumber'
+  else type = Array.isArray(type) ? 'array' : typeof type
   
-
   const parts = key.split('?')
   const minimumLength = parts[2]?.includes('min') ? parts[2].split['min:'][1] : 0
   return { type, optional, key: parts[0], minimumLength }
@@ -34,7 +35,7 @@ const toType = (data: BigNumber | number | string | Uint8Array | ArrayBuffer | o
   if (data instanceof Uint8Array) return data
   // returns the ArrayBuffer as a UintArray
   if (data instanceof ArrayBuffer) return new Uint8Array(data)
-  
+  // returns the bigNumbers hex as a UintArray
   if (data._isBigNumber) return new TextEncoder().encode(data._hex || data.toHexString())
   // returns the string as a UintArray
   if (typeof data === 'string') return new TextEncoder().encode(data)
@@ -46,13 +47,13 @@ const toType = (data: BigNumber | number | string | Uint8Array | ArrayBuffer | o
   throw new Error(`unsuported type ${typeof data || data}`)
 }
 
-export const encode = (proto: object, input: object): Uint8Array => {
+export const encode = (proto: object, input: object, compress: boolean): Uint8Array => {
   const keys = Object.keys(proto)
   const values: any[] = Object.values(proto)
-  
+
   const set: Uint8Array[] = []
   
-  for (let i = 0; i < keys.length; i++) {         
+  for (let i = 0; i < values.length; i++) {         
     const token = tokenize(keys[i], values[i])
     const data = input[token.key]
     
@@ -65,7 +66,7 @@ export const encode = (proto: object, input: object): Uint8Array => {
   return typedArraySmartConcat(set)
 }
 
-export const decode = (proto: object, uint8Array: Uint8Array): object => {
+export const decode = (proto: object, uint8Array: Uint8Array, compressed: boolean): object => {
   let deconcated = typedArraySmartDeconcat(uint8Array)
   const output = {}
 
@@ -74,8 +75,8 @@ export const decode = (proto: object, uint8Array: Uint8Array): object => {
 
   if (keys.length !== deconcated.length) console.warn(`length mismatch: expected  ${keys.length} got ${uint8Array.length}`);
   
-  for (let i = 0; i < keys.length; i++) {
-    const token = tokenize(keys[i], values[i])    
+  for (let i = 0; i < values.length; i++) {
+    const token = tokenize(keys[i], values[i])
     
     if (isUint8Array(token.type)) output[token.key] = deconcated[i]
     else if (isString(token.type)) output[token.key] = toString(deconcated[i])

@@ -12,12 +12,13 @@ const isUint8Array = (type) => type === 'uint8Array';
 const isBigNumber = (type) => type === 'bigNumber';
 const tokenize = (key, value) => {
     const optional = key.endsWith('?');
-    let type = value;
-    type = Array.isArray(type) ? 'array' : typeof type;
-    if (value instanceof Uint8Array)
+    let type = value === undefined ? key : value;
+    if (type instanceof Uint8Array)
         type = 'uint8Array';
-    else if (value._isBigNumber)
+    else if (type?._isBigNumber || type.isBigNumber)
         type = 'bigNumber';
+    else
+        type = Array.isArray(type) ? 'array' : typeof type;
     const parts = key.split('?');
     const minimumLength = parts[2]?.includes('min') ? parts[2].split['min:'][1] : 0;
     return { type, optional, key: parts[0], minimumLength };
@@ -29,6 +30,7 @@ const toType = (data) => {
     // returns the ArrayBuffer as a UintArray
     if (data instanceof ArrayBuffer)
         return new Uint8Array(data);
+    // returns the bigNumbers hex as a UintArray
     if (data._isBigNumber)
         return new TextEncoder().encode(data._hex || data.toHexString());
     // returns the string as a UintArray
@@ -42,11 +44,11 @@ const toType = (data) => {
         return new TextEncoder().encode(data.toString());
     throw new Error(`unsuported type ${typeof data || data}`);
 };
-const encode = (proto, input) => {
+const encode = (proto, input, compress) => {
     const keys = Object.keys(proto);
     const values = Object.values(proto);
     const set = [];
-    for (let i = 0; i < keys.length; i++) {
+    for (let i = 0; i < values.length; i++) {
         const token = tokenize(keys[i], values[i]);
         const data = input[token.key];
         if (!token.optional && data === undefined)
@@ -59,14 +61,14 @@ const encode = (proto, input) => {
     }
     return typedArraySmartConcat(set);
 };
-const decode = (proto, uint8Array) => {
+const decode = (proto, uint8Array, compressed) => {
     let deconcated = typedArraySmartDeconcat(uint8Array);
     const output = {};
     const keys = Object.keys(proto);
     const values = Object.values(proto);
     if (keys.length !== deconcated.length)
         console.warn(`length mismatch: expected  ${keys.length} got ${uint8Array.length}`);
-    for (let i = 0; i < keys.length; i++) {
+    for (let i = 0; i < values.length; i++) {
         const token = tokenize(keys[i], values[i]);
         if (isUint8Array(token.type))
             output[token.key] = deconcated[i];
