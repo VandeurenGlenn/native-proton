@@ -2,6 +2,7 @@ import typedArraySmartConcat from '@vandeurenglenn/typed-array-smart-concat';
 import typedArraySmartDeconcat from '@vandeurenglenn/typed-array-smart-deconcat';
 import typedArrayUtils from '@vandeurenglenn/typed-array-utils';
 import { BigNumber } from '@leofcoin/utils';
+import pako from 'pako';
 
 const { fromString, toString } = typedArrayUtils;
 const isJson = (type) => type === 'object' || 'array';
@@ -15,7 +16,7 @@ const tokenize = (key, value) => {
     let type = value === undefined ? key : value;
     if (type instanceof Uint8Array)
         type = 'uint8Array';
-    else if (type?._isBigNumber || type.isBigNumber)
+    else if (type instanceof BigNumber)
         type = 'bigNumber';
     else
         type = Array.isArray(type) ? 'array' : typeof type;
@@ -31,7 +32,7 @@ const toType = (data) => {
     if (data instanceof ArrayBuffer)
         return new Uint8Array(data);
     // returns the bigNumbers hex as a UintArray
-    if (data._isBigNumber)
+    if (data instanceof BigNumber)
         return new TextEncoder().encode(data._hex || data.toHexString());
     // returns the string as a UintArray
     if (typeof data === 'string')
@@ -59,9 +60,11 @@ const encode = (proto, input, compress) => {
         // when data is undefined push the default value of the proto
         set.push(toType(data || values[i]));
     }
-    return typedArraySmartConcat(set);
+    return compress ? pako.deflate(typedArraySmartConcat(set)) : typedArraySmartConcat(set);
 };
 const decode = (proto, uint8Array, compressed) => {
+    if (compressed)
+        uint8Array = pako.inflate(uint8Array);
     let deconcated = typedArraySmartDeconcat(uint8Array);
     const output = {};
     const keys = Object.keys(proto);
