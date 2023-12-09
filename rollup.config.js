@@ -1,14 +1,12 @@
-import typescript from "@rollup/plugin-typescript"
-import tsConfig from './tsconfig.json' assert { type: 'json'}
+import typescript from "@rollup/plugin-typescript";
 
-
-export default [{
-  input: ['./src/index.ts'],
-  output: {
-    format: 'es',
-    dir: './'
+export default [
+  {
+    input: ["./src/index.ts"],
+    output: {
+      format: "es",
+      dir: "./",
+    },
+    plugins: [typescript()],
   },
-  plugins: [
-    typescript(tsConfig)
-  ]
-}]
+];
