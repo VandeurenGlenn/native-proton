@@ -5,25 +5,23 @@ import { BigNumber } from '@leofcoin/utils';
 import pako from 'pako';
 
 const { fromString, toString } = typedArrayUtils;
-const isJson = (type) => type === "object" || "array";
-const isString = (type) => type === "string";
-const isNumber = (type) => type === "number";
-const isBoolean = (type) => type === "boolean";
-const isUint8Array = (type) => type === "uint8Array";
-const isBigNumber = (type) => type === "bigNumber";
+const isJson = (type) => type === 'object' || 'array';
+const isString = (type) => type === 'string';
+const isNumber = (type) => type === 'number';
+const isBoolean = (type) => type === 'boolean';
+const isUint8Array = (type) => type === 'uint8Array';
+const isBigNumber = (type) => type === 'bigNumber';
 const tokenize = (key, value) => {
-    const optional = key.endsWith("?");
+    const optional = key.endsWith('?');
     let type = value === undefined ? key : value;
     if (type instanceof Uint8Array)
-        type = "uint8Array";
+        type = 'uint8Array';
     else if (type instanceof BigNumber)
-        type = "bigNumber";
+        type = 'bigNumber';
     else
-        type = Array.isArray(type) ? "array" : typeof type;
-    const parts = key.split("?");
-    const minimumLength = parts[2]?.includes("min")
-        ? parts[2].split["min:"][1]
-        : 0;
+        type = Array.isArray(type) ? 'array' : typeof type;
+    const parts = key.split('?');
+    const minimumLength = parts[2]?.includes('min') ? parts[2].split['min:'][1] : 0;
     return { type, optional, key: parts[0], minimumLength };
 };
 const toType = (data) => {
@@ -37,13 +35,13 @@ const toType = (data) => {
     if (data instanceof BigNumber)
         return new TextEncoder().encode(data._hex || data.toHexString());
     // returns the string as a UintArray
-    if (typeof data === "string")
+    if (typeof data === 'string')
         return new TextEncoder().encode(data);
     // returns the object as a UintArray
-    if (typeof data === "object")
+    if (typeof data === 'object')
         return new TextEncoder().encode(JSON.stringify(data));
     // returns the number as a UintArray
-    if (typeof data === "number" || typeof data === "boolean")
+    if (typeof data === 'number' || typeof data === 'boolean')
         return new TextEncoder().encode(data.toString());
     throw new Error(`unsuported type ${typeof data || data}`);
 };
@@ -56,17 +54,14 @@ const encode = (proto, input, compress) => {
         const data = input[token.key];
         if (!token.optional && data === undefined)
             throw new Error(`missing required property: ${token.key}`);
-        if ((token.type === "array" && token.minimumLength > data?.length) ||
-            (token.type === "object" &&
-                token.minimumLength > Object.keys(data).length))
+        if ((token.type === 'array' && token.minimumLength > data?.length) ||
+            (token.type === 'object' && token.minimumLength > Object.keys(data).length))
             throw new Error(`minimumLength for ${token.key} is set to ${token.minimumLength} but got ${data.length}`);
         // always push data to the set.
         // when data is undefined push the default value of the proto
         set.push(toType(data || values[i]));
     }
-    return compress
-        ? pako.deflate(typedArraySmartConcat(set))
-        : typedArraySmartConcat(set);
+    return compress ? pako.deflate(typedArraySmartConcat(set)) : typedArraySmartConcat(set);
 };
 const decode = (proto, uint8Array, compressed) => {
     if (compressed)
@@ -84,7 +79,7 @@ const decode = (proto, uint8Array, compressed) => {
         else if (isString(token.type))
             output[token.key] = toString(deconcated[i]);
         else if (isBoolean(token.type))
-            output[token.key] = Boolean(new TextDecoder().decode(deconcated[i]));
+            output[token.key] = new TextDecoder().decode(deconcated[i]) === 'true';
         else if (isNumber(token.type))
             output[token.key] = Number(new TextDecoder().decode(deconcated[i]));
         else if (isBigNumber(token.type))
@@ -102,7 +97,7 @@ const decode = (proto, uint8Array, compressed) => {
 };
 var index = {
     encode,
-    decode,
+    decode
 };
 
 export { decode, index as default, encode };
