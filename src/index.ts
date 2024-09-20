@@ -1,7 +1,6 @@
 import typedArraySmartConcat from '@vandeurenglenn/typed-array-smart-concat'
 import typedArraySmartDeconcat from '@vandeurenglenn/typed-array-smart-deconcat'
 import typedArrayUtils from '@vandeurenglenn/typed-array-utils'
-import { BigNumber } from '@leofcoin/utils'
 import pako from 'pako'
 
 const { fromString, toString } = typedArrayUtils
@@ -16,14 +15,14 @@ const isBoolean = (type: string) => type === 'boolean'
 
 const isUint8Array = (type: string) => type === 'uint8Array'
 
-const isBigNumber = (type: string) => type === 'bigNumber'
+const isBigInt = (type: string) => type === 'bigint'
 
-const tokenize = (key: string, value: string | number | BigNumber | object | []) => {
+const tokenize = (key: string, value: string | number | bigint | object | []) => {
   const optional = key.endsWith('?')
   let type = value === undefined ? key : value
 
   if (type instanceof Uint8Array) type = 'uint8Array'
-  else if (type instanceof BigNumber) type = 'bigNumber'
+  else if (type instanceof BigInt) type = 'bigint'
   else type = Array.isArray(type) ? 'array' : typeof type
 
   const parts = key.split('?')
@@ -31,18 +30,18 @@ const tokenize = (key: string, value: string | number | BigNumber | object | [])
   return { type, optional, key: parts[0], minimumLength }
 }
 
-const toType = (data: BigNumber | number | string | Uint8Array | ArrayBuffer | object | []): Uint8Array => {
+const toType = (data: bigint | number | string | Uint8Array | ArrayBuffer | object | []): Uint8Array => {
   // always return uint8Arrays as they are
   if (data instanceof Uint8Array) return data
-  // returns the ArrayBuffer as a UintArray
+  // returns the ArrayBuffer as UintArray
   if (data instanceof ArrayBuffer) return new Uint8Array(data)
-  // returns the bigNumbers hex as a UintArray
-  if (data instanceof BigNumber) return new TextEncoder().encode(data._hex || data.toHexString())
-  // returns the string as a UintArray
+  // returns the BigTnt string as UintArray
+  if (typeof data === 'bigint') return new TextEncoder().encode(data.toString())
+  // returns the string as UintArray
   if (typeof data === 'string') return new TextEncoder().encode(data)
-  // returns the object as a UintArray
+  // returns the object as UintArray
   if (typeof data === 'object') return new TextEncoder().encode(JSON.stringify(data))
-  // returns the number as a UintArray
+  // returns the number as UintArray
   if (typeof data === 'number' || typeof data === 'boolean') return new TextEncoder().encode(data.toString())
 
   throw new Error(`unsuported type ${typeof data || data}`)
@@ -89,7 +88,7 @@ export const decode = (proto: object, uint8Array: Uint8Array, compressed?: boole
     else if (isString(token.type)) output[token.key] = toString(deconcated[i])
     else if (isBoolean(token.type)) output[token.key] = new TextDecoder().decode(deconcated[i]) === 'true'
     else if (isNumber(token.type)) output[token.key] = Number(new TextDecoder().decode(deconcated[i]))
-    else if (isBigNumber(token.type)) output[token.key] = BigNumber.from(new TextDecoder().decode(deconcated[i]))
+    else if (isBigInt(token.type)) output[token.key] = BigInt(new TextDecoder().decode(deconcated[i]))
     else if (isJson(token.type)) output[token.key] = JSON.parse(new TextDecoder().decode(deconcated[i]))
     if (token.optional) {
       if (!output[token.key] || output[token.key].length === 0) delete output[token.key]
