@@ -2,6 +2,7 @@ import typedArraySmartConcat from '@vandeurenglenn/typed-array-smart-concat'
 import typedArraySmartDeconcat from '@vandeurenglenn/typed-array-smart-deconcat'
 import typedArrayUtils from '@vandeurenglenn/typed-array-utils'
 import pako from 'pako'
+import { jsonParseBigInt, jsonStringifyBigInt } from './utils.js'
 
 const { fromString, toString } = typedArrayUtils
 
@@ -40,7 +41,7 @@ const toType = (data: bigint | number | string | Uint8Array | ArrayBuffer | obje
   // returns the string as UintArray
   if (typeof data === 'string') return new TextEncoder().encode(data)
   // returns the object as UintArray
-  if (typeof data === 'object') return new TextEncoder().encode(JSON.stringify(data))
+  if (typeof data === 'object') return new TextEncoder().encode(JSON.stringify(data, jsonStringifyBigInt))
   // returns the number as UintArray
   if (typeof data === 'number' || typeof data === 'boolean') return new TextEncoder().encode(data.toString())
 
@@ -89,7 +90,8 @@ export const decode = (proto: object, uint8Array: Uint8Array, compressed?: boole
     else if (isBoolean(token.type)) output[token.key] = new TextDecoder().decode(deconcated[i]) === 'true'
     else if (isNumber(token.type)) output[token.key] = Number(new TextDecoder().decode(deconcated[i]))
     else if (isBigInt(token.type)) output[token.key] = BigInt(new TextDecoder().decode(deconcated[i]))
-    else if (isJson(token.type)) output[token.key] = JSON.parse(new TextDecoder().decode(deconcated[i]))
+    else if (isJson(token.type))
+      output[token.key] = JSON.parse(new TextDecoder().decode(deconcated[i]), jsonParseBigInt)
     if (token.optional) {
       if (!output[token.key] || output[token.key].length === 0) delete output[token.key]
     }

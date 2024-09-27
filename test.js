@@ -1,4 +1,4 @@
-import { encode, decode } from './index.js'
+import { encode, decode } from './exports/index.js'
 const proto = {
   'hash?': '',
   input: {

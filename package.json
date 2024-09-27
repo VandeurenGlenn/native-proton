@@ -4,8 +4,12 @@
   "description": "",
   "exports": {
     ".": {
-      "import": "./index.js",
-      "types": "./index.d.ts"
+      "import": "./exports/index.js",
+      "types": "./exports/index.d.ts"
+    },
+    "./utils": {
+      "import": "./exports/utils.js",
+      "types": "./exports/utils.d.ts"
     }
   },
   "type": "module",
@@ -15,9 +19,11 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
+  "files": [
+    "exports"
+  ],
   "dependencies": {
-    "@leofcoin/utils": "^1.1.30",
     "@vandeurenglenn/typed-array-smart-concat": "^1.0.4",
     "@vandeurenglenn/typed-array-smart-deconcat": "^1.0.3",
     "@vandeurenglenn/typed-array-utils": "^1.2.0",
