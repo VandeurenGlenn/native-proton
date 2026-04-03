@@ -10,6 +10,18 @@
     "./utils": {
       "import": "./exports/utils.js",
       "types": "./exports/utils.d.ts"
+    },
+    "./encode": {
+      "import": "./exports/encode.js",
+      "types": "./exports/encode.d.ts"
+    },
+    "./decode": {
+      "import": "./exports/decode.js",
+      "types": "./exports/decode.d.ts"
+    },
+    "./tokenizer": {
+      "import": "./exports/tokenizer.js",
+      "types": "./exports/tokenizer.d.ts"
     }
   },
   "type": "module",
